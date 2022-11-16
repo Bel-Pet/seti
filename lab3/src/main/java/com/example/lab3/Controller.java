@@ -2,11 +2,15 @@ package com.example.lab3;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.util.Pair;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class Controller {
-    private final Positions positions = new Positions();
+    Map<String, Pair<Double, Double>> positions = new HashMap<>();
     @FXML
     private TextArea description;
     @FXML
@@ -23,16 +27,17 @@ public class Controller {
     @FXML
     private void initialize() {
         click.setDefaultButton(true);
-        click.setOnAction(event -> {
-            String cur = userPlace.getText().trim();
+        click.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+            String place = userPlace.getText().trim();
             listPositions.getItems().clear();
-            if (cur.isEmpty()) {
+            if (place.isEmpty()) {
                 listPositions.getItems().add("Not found");
                 return;
             }
             try {
-                positions.put(positions.findLocations(cur).get());
-                listPositions.getItems().addAll(positions.get().keySet());
+                positions.clear();
+                positions.putAll(Finder.findLocations(place).get());
+                listPositions.getItems().addAll(positions.keySet());
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
                 listPositions.getItems().add("Not found");
@@ -42,16 +47,16 @@ public class Controller {
 
     @FXML
     private void display() {
-        String cur = listPositions.getSelectionModel().getSelectedItem();
+        String place = listPositions.getSelectionModel().getSelectedItem();
         listPlaces.getItems().clear();
-        if (cur == null || cur.isEmpty()) {
+        if (place == null || place.isEmpty()) {
             listPlaces.getItems().add("Not found");
             weather.setText("Not found");
             description.setText("Not found");
             return;
         }
         try {
-            Info info = positions.findInfo(cur).get();
+            Info info = Finder.findInfo(place, positions).get();
             weather.setText(info.weather());
             listPlaces.getItems().addAll(info.places().keySet());
             description.setText(info.descriptions());

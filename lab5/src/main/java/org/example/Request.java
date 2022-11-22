@@ -5,19 +5,22 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-public class Request {
-    private final byte[] buffer;
+public record Request(byte[] buffer) {
 
     public static byte[] connectRequest() {
         return new byte[]{0x05, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     }
 
-    public Request(byte[] buffer) {
-        this.buffer = buffer;
+    public static byte[] noConnectRequest() {
+        return new byte[]{0x05, 0x08, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     }
 
-    public boolean isVersionSocks5() {
-        return buffer[0] == 0x05;
+    public static byte[] no2ConnectRequest() {
+        return new byte[]{0x05, 0x07, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    }
+
+    public boolean isInvalidVersion() {
+        return buffer[0] != 0x05;
     }
 
     public boolean isIPv4() {
@@ -50,14 +53,14 @@ public class Request {
         return 5 + buffer[4];
     }
 
+    public byte[] getMethod() {
+        return findNoAuthMethod() ? new byte[]{0x05, 0x00} : new byte[]{0x05, (byte) 0xFF};
+    }
+
     private boolean findNoAuthMethod() {
         for (int i = 0; i < buffer[1]; i++) {
             if (buffer[i + 2] == 0x00) return true;
         }
         return false;
-    }
-
-    public byte[] getRequestWithMethod() {
-        return findNoAuthMethod() ? new byte[]{0x05, 0x00} : new byte[]{0x05, (byte) 0xFF};
     }
 }

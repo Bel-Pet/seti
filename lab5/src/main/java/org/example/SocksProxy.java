@@ -1,7 +1,6 @@
 package org.example;
 
 
-
 import java.io.IOException;
 import java.nio.channels.*;
 import java.nio.channels.spi.SelectorProvider;
@@ -24,7 +23,8 @@ public class SocksProxy {
         try {
             while (selector.select() > -1) {
                 selector.selectedKeys().forEach(key -> {
-                    if (key.isValid()) ((Attachment) key.attachment()).handleEvent();
+                    if (key.isValid())
+                        ((Attachment) key.attachment()).handleEvent();
                 });
                 selector.selectedKeys().clear();
             }

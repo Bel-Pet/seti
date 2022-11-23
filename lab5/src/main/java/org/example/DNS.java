@@ -1,5 +1,6 @@
 package org.example;
 
+
 import org.xbill.DNS.*;
 import org.xbill.DNS.Record;
 
@@ -62,7 +63,6 @@ public class DNS implements Attachment {
         }
 
         Optional<Record> maybeRecord = new Message(in.array()).getSection(Section.ANSWER).stream().findAny();
-
         if (maybeRecord.isPresent()) {
             Client client = new Client(otherKey, new InetSocketAddress(InetAddress.getByName(maybeRecord.get().rdataToString()), port));
             ((Client) otherKey.attachment()).setOther(client);

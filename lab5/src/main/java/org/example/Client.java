@@ -35,6 +35,8 @@ public class Client implements Attachment {
         client.connect(connectAddr);
         key = client.register(otherKey.selector(), SelectionKey.OP_CONNECT, this);
 
+        ((Client) otherKey.attachment()).setOther(this);
+
         other = (Client) otherKey.attachment();
         this.otherKey = otherKey;
         in.put(Request.connectRequest()).flip();
@@ -82,8 +84,7 @@ public class Client implements Attachment {
 
     private void connect() throws IOException {
         //TODO : послать сообщение клиену об ошибке сервера
-        if (!client.isConnectionPending() || !client.finishConnect())
-            return;
+        if (!client.finishConnect()) return;
         LOGGER.info("Finish connect: " + client.getRemoteAddress());
 
         otherKey.interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
@@ -95,10 +96,10 @@ public class Client implements Attachment {
             close();
         } else if (type == OperationType.READ_HELLO) {
             LOGGER.info("Read hello: " + " " + client.getRemoteAddress());
-            readHello(key);
+            readHello();
         } else if (otherKey == null) {
             LOGGER.info("Read header: " + " " + client.getRemoteAddress());
-            readHeader(key);
+            readHeader();
         } else {
             LOGGER.info("Read data: " + " " + client.getRemoteAddress());
             otherKey.interestOpsOr(SelectionKey.OP_WRITE);
@@ -108,7 +109,7 @@ public class Client implements Attachment {
     }
 
     //TODO : послать сообщение клиену об ошибке сервера
-    private void readHello(SelectionKey key) {
+    private void readHello() {
         Request request = new Request(in.array());
         if (request.isInvalidVersion())
             throw new RuntimeException("Bad request: incorrect SOCKS version");
@@ -120,7 +121,7 @@ public class Client implements Attachment {
     }
 
     //TODO : послать сообщение клиену об ошибке сервера
-    private void readHeader(SelectionKey key) throws IOException {
+    private void readHeader() throws IOException {
         Request request = new Request(in.array());
         if (request.isInvalidVersion())
              throw new RuntimeException("Bad request: incorrect SOCKS version");
@@ -135,17 +136,18 @@ public class Client implements Attachment {
 
         if (request.isIPv4()) {
             other = new Client(key, request.getInetSocketAddress());
-            setOther(other);
         }
 
-        if (request.isDomain())
+        if (request.isDomain()) {
             new DNS(key, request.getHost(), request.getPort());
+        }
 
         key.interestOps(key.interestOps() ^ SelectionKey.OP_READ);
     }
 
     private void write() throws IOException {
         if (client.write(out) == -1) {
+            System.exit(1);
             close();
         } else if (out.remaining() == 0) {
             if (type == OperationType.WRITE) {
@@ -168,7 +170,6 @@ public class Client implements Attachment {
         key.cancel();
         try {
             client.close();
-            // TODO : переписать!!!
             if (otherKey != null) {
                 other.deleteOtherKey();
                 if ((otherKey.interestOps() & SelectionKey.OP_WRITE) == 0) {

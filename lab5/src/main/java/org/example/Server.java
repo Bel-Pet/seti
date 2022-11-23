@@ -1,50 +1,39 @@
 package org.example;
 
-import java.nio.channels.SelectableChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.*;
+import java.util.logging.Logger;
 
-public class Server extends SelectionKey {
-    private ServerSocketChannel channel;
+public class Server implements Attachment {
+    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
+    private final ServerSocketChannel server;
+    private final SelectionKey key;
 
-
-    public Server(SelectionKey key) {
-        ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
+    public Server(Selector selector, int port) throws IOException {
+        server = ServerSocketChannel.open();
+        server.configureBlocking(false);
+        server.socket().bind(new InetSocketAddress(port));
+        key = server.register(selector,server.validOps(), this);
+        LOGGER.info("Server started...");
     }
 
     @Override
-    public SelectableChannel channel() {
-        return null;
+    public void handleEvent() {
+        try {
+            new Client(key);
+        } catch (IOException e) {
+            e.printStackTrace();
+            close();
+        }
     }
 
-    @Override
-    public Selector selector() {
-        return null;
-    }
-
-    @Override
-    public boolean isValid() {
-        return false;
-    }
-
-    @Override
-    public void cancel() {
-
-    }
-
-    @Override
-    public int interestOps() {
-        return 0;
-    }
-
-    @Override
-    public SelectionKey interestOps(int ops) {
-        return null;
-    }
-
-    @Override
-    public int readyOps() {
-        return 0;
+    void close() {
+        key.cancel();
+        try {
+            server.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

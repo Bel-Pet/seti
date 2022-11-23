@@ -3,7 +3,8 @@ package org.example;
 public enum OperationType {
     READ,
     WRITE,
-    DNS_READ,
-    DNS_WRITE,
-    HELLO
+    READ_HELLO,
+    WRITE_HELLO,
+    READ_HEADER,
+    WRITE_HEADER
 }

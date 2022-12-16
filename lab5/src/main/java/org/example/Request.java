@@ -11,6 +11,7 @@ public class Request {
         this.type = type;
     }
 
+    /* Check for valid request length */
     public boolean isRequest() {
         return switch (type) {
             case HELLO -> isHelloRequest();
@@ -42,6 +43,7 @@ public class Request {
         return true;
     }
 
+    /* Check request arguments for validity of processing it by our proxy */
     public boolean isValid() {
         return switch (type) {
             case HELLO -> isValidHello();
@@ -64,6 +66,7 @@ public class Request {
         return buffer.get(0) == 0x05;
     }
 
+    /* Generate response for request */
     public byte[] getResponse() {
         return switch (type) {
             case HELLO -> getHelloResponse();
@@ -80,7 +83,6 @@ public class Request {
     }
 
     private byte[] getHeaderResponse() {
-
         byte[] data = new byte[4 + buffer.get(4) + 3];
         buffer.get(data);
         if (data[1] != 0x01) {
@@ -96,9 +98,9 @@ public class Request {
         return data;
     }
 
+    /* Generate response with information about connection failure */
     public byte[] getDisconnectResponse() {
-        buffer.flip();
-        byte[] data = new byte[buffer.limit()];
+        byte[] data = new byte[4 + buffer.get(4) + 3];
         buffer.get(data);
         data[1] = 0x04;
 

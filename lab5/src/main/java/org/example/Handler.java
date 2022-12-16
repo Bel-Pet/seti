@@ -1,7 +1,7 @@
 package org.example;
 
 
-public interface Attachment {
+public interface Handler {
     void handleEvent();
     void close();
 }

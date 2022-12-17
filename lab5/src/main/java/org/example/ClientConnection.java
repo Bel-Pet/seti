@@ -136,6 +136,10 @@ public class ClientConnection extends Connection {
     }
 
     private void writeHello() throws IOException {
+        if (getDisconnect()) {
+            close();
+            return;
+        }
         key.interestOps(SelectionKey.OP_READ);
         type = OperationType.HEADER;
         LOGGER.info("Write hello " + clientChannel.getLocalAddress());

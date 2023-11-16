@@ -1,20 +1,20 @@
 package com.example.lab3;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
-import javafx.util.Pair;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 public class Controller {
-    Map<String, Pair<Double, Double>> positions = new HashMap<>();
+    private static final String NOT_FOUND = "Not found";
+    private final Finder finder = new Finder();
     @FXML
     private TextArea description;
-    @FXML
-    private ListView<String> listPlaces = new ListView<>();
     @FXML
     private ListView<String> listPositions = new ListView<>();
     @FXML
@@ -28,44 +28,35 @@ public class Controller {
     private void initialize() {
         click.setDefaultButton(true);
         click.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-            String place = userPlace.getText().trim();
+            var place = userPlace.getText().trim();
             listPositions.getItems().clear();
             if (place.isEmpty()) {
-                listPositions.getItems().add("Not found");
+                listPositions.getItems().add(NOT_FOUND);
                 return;
             }
             try {
-                positions.clear();
-                positions.putAll(Finder.findLocations(place).get());
-                listPositions.getItems().addAll(positions.keySet());
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-                listPositions.getItems().add("Not found");
+                listPositions.getItems().addAll(finder.getLocations(place));
+            } catch (InterruptedException | IOException e) {
+                listPositions.getItems().add(NOT_FOUND);
             }
         });
     }
 
     @FXML
     private void display() {
-        String place = listPositions.getSelectionModel().getSelectedItem();
-        listPlaces.getItems().clear();
+        var place = listPositions.getSelectionModel().getSelectedItem();
         if (place == null || place.isEmpty()) {
-            listPlaces.getItems().add("Not found");
-            weather.setText("Not found");
-            description.setText("Not found");
+            weather.setText(NOT_FOUND);
+            description.setText(NOT_FOUND);
             return;
         }
         try {
-            Info info = Finder.findInfo(place, positions).get();
+            var info = finder.findInfo(place).get();
             weather.setText(info.weather());
-            listPlaces.getItems().addAll(info.places().keySet());
             description.setText(info.descriptions());
-
         } catch (ExecutionException | InterruptedException e) {
-            e.printStackTrace();
-            listPlaces.getItems().add("Not found");
-            weather.setText("Not found");
-            description.setText("Not found");
+            weather.setText(NOT_FOUND);
+            description.setText(NOT_FOUND);
         }
     }
 }

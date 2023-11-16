@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="800.0" prefWidth="800.0" style="-fx-background-color: #2E3348;"
+            xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.lab3.Controller">
+    <AnchorPane layoutX="-3.0" prefHeight="222.0" prefWidth="400.0" style="-fx-background-color: #2E3348;">
+        <AnchorPane layoutY="60.0" prefHeight="162.0" prefWidth="400.0" style="-fx-background-color: #2F3F71;">
+            <TextField fx:id="userPlace" layoutX="10.0" layoutY="14.0" prefHeight="50.0" prefWidth="380.0">
+                <font><Font size="16.0" /></font>
+            </TextField>
+            <Button fx:id="click" defaultButton="true" layoutX="115.0" layoutY="81.0" mnemonicParsing="false"
+                    prefHeight="50.0" prefWidth="170.0" text="Search" textFill="#bf5050">
+                <font><Font size="30.0" /></font>
+            </Button>
+        </AnchorPane>
+        <Label layoutX="125.0" layoutY="14.0" text="Enter Location" textFill="WHITE">
+            <font><Font name="System Bold" size="24.0" /></font>
+        </Label>
+    </AnchorPane>
+    <AnchorPane layoutX="3.0" layoutY="400.0" prefHeight="397.0" prefWidth="794.0" style="-fx-background-color: #2E3348;">
+        <AnchorPane layoutY="60.0" prefHeight="242.0" prefWidth="400.0" style="-fx-background-color: #2F3F71;">
+            <TextArea fx:id="description" prefHeight="330.0" prefWidth="794.0"
+                      scrollLeft="51.0" scrollTop="145.0" style="-fx-background-color: #2F3F71;">
+                <font><Font size="12.0" /></font>
+            </TextArea>
+        </AnchorPane>
+        <Label layoutX="265.0" layoutY="14.0" text="Places and Descriptions" textFill="WHITE">
+            <font><Font name="System Bold" size="24.0" /></font>
+        </Label>
+    </AnchorPane>
+    <AnchorPane layoutX="400.0" prefHeight="390.0" prefWidth="400.0">
+        <Label layoutX="148.0" layoutY="14.0" prefHeight="27.0" prefWidth="265.0" text="Locations" textFill="WHITE">
+            <font><Font name="System Bold" size="24.0" /></font>
+        </Label>
+        <ListView fx:id="listPositions" fixedCellSize="30.0" layoutY="60.0" onMouseClicked="#display"
+                  prefHeight="330.0" prefWidth="400.0" style="-fx-background-color: #2F3F71;">
+            <opaqueInsets>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </opaqueInsets></ListView>
+    </AnchorPane>
+    <AnchorPane layoutY="222.0" prefHeight="168.0" prefWidth="394.0" style="-fx-background-color: #2E3348;">
+        <AnchorPane layoutY="60.0" prefHeight="108.0" prefWidth="394.0" style="-fx-background-color: #2F3F71;">
+            <TextField fx:id="weather" layoutX="112.0" layoutY="14.0" prefHeight="60.0" prefWidth="170.0">
+                <font><Font size="24.0" /></font>
+            </TextField>
+        </AnchorPane>
+        <Label layoutX="149.0" layoutY="10.0" prefHeight="27.0" prefWidth="198.0" text="Weather" textFill="WHITE">
+            <font><Font name="System Bold" size="24.0" /></font>
+        </Label>
+    </AnchorPane>
+</AnchorPane>

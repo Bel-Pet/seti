@@ -7,56 +7,50 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Controller {
-    private static final String NOT_FOUND = "Not found";
-    private final Finder finder = new Finder();
-    @FXML
-    private TextArea description;
     @FXML
     private ListView<String> listPositions = new ListView<>();
     @FXML
     private TextField userPlace;
     @FXML
-    private Button click;
+    private Button searchButton;
     @FXML
-    private TextField weather;
+    private TextField weatherField;
+    @FXML
+    private TextArea descriptionArea;
+
+    private final Finder finder = new Finder();
+
+    private final AtomicBoolean searchCompleted = new AtomicBoolean(true);
 
     @FXML
     private void initialize() {
-        click.setDefaultButton(true);
-        click.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
-            var place = userPlace.getText().trim();
-            listPositions.getItems().clear();
-            if (place.isEmpty()) {
-                listPositions.getItems().add(NOT_FOUND);
+        searchButton.setDefaultButton(true);
+        searchButton.addEventHandler(MouseEvent.MOUSE_CLICKED, mouseEvent -> {
+            if (!searchCompleted.get()) {
                 return;
             }
-            try {
-                listPositions.getItems().addAll(finder.getLocations(place));
-            } catch (InterruptedException | IOException e) {
-                listPositions.getItems().add(NOT_FOUND);
-            }
+            searchCompleted.set(false);
+            finder.findLocations(userPlace.getText().trim()).thenAccept(it -> {
+                listPositions.getItems().clear();
+                listPositions.getItems().addAll(it);
+            }).join();
+            searchCompleted.set(true);
         });
     }
 
     @FXML
     private void display() {
-        var place = listPositions.getSelectionModel().getSelectedItem();
-        if (place == null || place.isEmpty()) {
-            weather.setText(NOT_FOUND);
-            description.setText(NOT_FOUND);
+        if (!searchCompleted.get()) {
             return;
         }
-        try {
-            var info = finder.findInfo(place).get();
-            weather.setText(info.weather());
-            description.setText(info.descriptions());
-        } catch (ExecutionException | InterruptedException e) {
-            weather.setText(NOT_FOUND);
-            description.setText(NOT_FOUND);
-        }
+        searchCompleted.set(false);
+        finder.findLocationInfo(listPositions.getSelectionModel().getSelectedItem()).thenAccept(it -> {
+            weatherField.setText(it.getKey());
+            descriptionArea.setText(it.getValue());
+        }).join();
+        searchCompleted.set(true);
     }
 }

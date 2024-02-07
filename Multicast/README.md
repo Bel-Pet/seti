@@ -1,4 +1,5 @@
 Multicast-Find-Copies-App
+
 Application that discovers copies of itself in the local network by exchanging multicast UDP messages.
 The application should track the moments of appearance and disappearance of other copies of itself in the local network and output the list of IP addresses of "live" copies in case of changes.
 
